@@ -1,0 +1,372 @@
+using System;
+using System.Collections.Generic;
+using System.Collections;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+
+namespace 记事本
+{
+    public partial class NewNoteBook : Form
+    {
+        private SaveFileDialog SaveFile = new SaveFileDialog();
+        private OpenFileDialog OpenFile = new OpenFileDialog();
+
+        private int DefaultFont = 9;
+        
+        private bool RichboxTextHIsChanged = false;
+        private string TextFileName = "newnotebook";
+        private string FilePath = "";
+        public static string Filter { get; private set; }
+
+        //初始化记事本
+        public NewNoteBook()
+        {
+            InitializeComponent();
+            richTextBox1.Font = new Font("宋体", DefaultFont, FontStyle.Regular);
+        }
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+
+        }
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            
+        }
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+        //计时器
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            toolStripStatusLabel1.Text = "时间：" + DateTime.Now.ToLongTimeString().ToString();
+        }
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void newnotebook_Load(object sender, EventArgs e)
+        {
+
+        }
+        private void label1_Click_1(object sender, EventArgs e)
+        {
+
+        }
+        private void toolStripStatusLabel1_Click_1(object sender, EventArgs e)
+        {
+            OpenFile.FileName = "";
+            SaveFile.Filter = "TXT FILE(*.txt)|*.txt";
+            OpenFile.Filter = "TXT FILE(*.txt)|*.txt";
+            
+            toolStripStatusLabel1.Text = "时间：" + DateTime.Now.ToLongTimeString().ToString();
+            timer1.Enabled = true;
+            timer1.Interval = 100;
+        }
+        private void statusStrip1_ItemClicked_1(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }     
+        private void Form2_Load(object sender, EventArgs e)
+        {
+
+        }
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
+        {
+
+        }
+        //=======================================================================
+
+        //=======================================================================
+        //文件按钮
+        private void 文件ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+        //新建记事本
+        private void 新建ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TextFileName = "";
+            if (richTextBox1.Text != string.Empty)
+            {
+                if (MessageBox.Show("是否保存当前文件？", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information)
+                    == DialogResult.Yes)
+                {
+                    if (OpenFile.FileName != "")
+                    {
+                        richTextBox1.SaveFile(OpenFile.FileName, RichTextBoxStreamType.PlainText);
+                        MessageBox.Show("保存成功！", "提示", MessageBoxButtons.OK);
+                    }
+                    else
+                    {
+                        SaveFile.Filter = "文本文件|*.txt";
+                        if (SaveFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                        {
+                            richTextBox1.SaveFile(SaveFile.FileName, RichTextBoxStreamType.PlainText);
+                            MessageBox.Show("保存成功！", "提示", MessageBoxButtons.OK);
+                            richTextBox1.Text = "";
+                        }
+                    }                  
+                }
+                else if (MessageBox.Show("是否保存当前文件？", "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information)
+                    == DialogResult.No)
+                {
+
+                    richTextBox1.Text = "";
+                }
+            }
+
+        }
+        //新建记事本窗口
+        private void toolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            记事本.NewNoteBook NewNoteBook = new 记事本.NewNoteBook();
+            NewNoteBook.ShowDialog();
+        }
+        //打开文件按钮
+        private void 打开ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFile = new OpenFileDialog();
+            openFile.Filter = "文本文件(*.txt)|*.txt";
+            if (openFile.ShowDialog() == DialogResult.OK)
+            {
+                StreamReader sr = new StreamReader(openFile.FileName, System.Text.Encoding.Default);
+                this.richTextBox1.Text = sr.ReadToEnd();
+            }
+
+        }
+        //保存文件按钮
+        private void 保存ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(OpenFile.FileName != "")
+            {
+                richTextBox1.SaveFile(OpenFile.FileName, RichTextBoxStreamType.PlainText);
+                MessageBox.Show("保存成功！", "提示",MessageBoxButtons.OK);
+            }
+            else
+            {
+                SaveFile.Filter = "文本文件|*.txt";
+                if (SaveFile.ShowDialog() == System.Windows.Forms.DialogResult.OK) 
+                {
+                    richTextBox1.SaveFile(SaveFile.FileName, RichTextBoxStreamType.PlainText);
+                    MessageBox.Show("保存成功！", "提示", MessageBoxButtons.OK);
+                }               
+            }
+        }
+        //另存为按钮
+        private void 另存为ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDia = new SaveFileDialog();
+            saveFileDia.Filter = "文本文件(*.txt)|*.txt";
+            if (saveFileDia.ShowDialog() == DialogResult.OK)
+            {
+                StreamWriter Savefile = new StreamWriter(saveFileDia.FileName, false);
+                Savefile.WriteLine(richTextBox1.Text);
+                Savefile.Close();
+                MessageBox.Show("文件保存成功！", "提示");
+                FilePath = saveFileDia.FileName;
+            }
+
+            if (TextFileName == "")
+            {
+                FileInfo fileInfo = new FileInfo(saveFileDia.FileName);
+                Text = fileInfo.Name;
+                TextFileName = fileInfo.Name;
+            }
+            else
+            {
+
+                Text = TextFileName;
+            }
+        }
+        //打印按钮
+        private void PrintButton_Click(object sender, EventArgs e)
+        {
+            this.printDialog1.Document = this.printDocument1;
+            this.printDialog1.PrinterSettings = this.pageSetupDialog1.PrinterSettings;
+            if (richTextBox1.Text == string.Empty)
+            {
+                MessageBox.Show("无可打印文件", "提示");
+            }
+            else
+            {
+                this.printDocument1.Print();
+                MessageBox.Show("完成", "提示");
+            }             
+        }
+        //退出按钮
+        private void 退出ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+        //=======================================================================
+
+        //=======================================================================
+        //编辑按钮
+        private void 编辑ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+        //剪切按钮
+        private void 剪切ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.richTextBox1.Cut();
+        }
+        //复制按钮
+        private void 复制ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.richTextBox1.Copy();
+        }
+        //粘贴按钮
+        private void 粘贴ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.richTextBox1.Paste();
+        }
+        //删除按钮
+        private void 删除ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (this.richTextBox1.SelectedText != null)
+            {
+                this.richTextBox1.SelectedText = "";
+            }
+        }
+        //撤销按钮
+        private void 撤销ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.richTextBox1.Undo();
+        }
+        //查找按钮
+        private void toolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+            记事本.Form2 FileSearch = new 记事本.Form2(this);
+            FileSearch.ShowDialog();
+        }
+        //替换按钮
+        private void toolStripMenuItem5_Click(object sender, EventArgs e)
+        {
+            记事本.Form2 FileExchange = new 记事本.Form2(this);
+            FileExchange.ShowDialog();
+        }
+        //全选按钮
+        private void 全选ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            richTextBox1.SelectAll();
+        }
+        //时间/日期按钮
+        private void 时间日期ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            richTextBox1.AppendText(System.DateTime.Now.ToString());
+        }
+        //=======================================================================
+
+        //=======================================================================
+        //状态栏按钮
+        private void 状态栏SToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (StatesButton.Checked == true)
+            {
+                StatesButton.Checked = false;
+                statusStrip1.Visible = false;
+                richTextBox1.Height += statusStrip1.Height;
+            }
+            else
+            {
+                StatesButton.Checked = true;
+                statusStrip1.Visible = true;
+                richTextBox1.Height -= statusStrip1.Height;
+            }
+        }
+        //缩放按钮
+        private void SwitchButton_Click(object sender, EventArgs e)
+        {
+
+        }
+        //放大按钮
+        private void BigButton_Click(object sender, EventArgs e)
+        {
+            if (DefaultFont <= 80)
+            {
+                DefaultFont += 10;
+            }
+            richTextBox1.Font = new Font("宋体", DefaultFont, FontStyle.Regular);
+        }
+        //缩小按钮
+        private void SmallButton_Click(object sender, EventArgs e)
+        {
+            if (DefaultFont > 10)
+            {
+                DefaultFont -= 10;
+            }                     
+            richTextBox1.Font = new Font("宋体", DefaultFont, FontStyle.Regular);
+        }
+        //恢复默认字体按钮
+        private void DefaultFontButton_Click(object sender, EventArgs e)
+        {
+            DefaultFont = 9;
+            richTextBox1.Font = new Font("宋体", DefaultFont, FontStyle.Regular);
+        }
+        //=======================================================================
+
+        //=======================================================================
+        //格式按钮
+        private void FormButton_Click(object sender, EventArgs e)
+        {
+
+        }
+        //字体按钮
+        private void 字体ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FontDialog fd = new FontDialog();
+            fd.ShowDialog();
+            richTextBox1.Font = fd.Font;
+        }
+        //自动换行按钮
+        private void 自动换行ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (AutoLineButton.Checked == false)
+            {
+                AutoLineButton.Checked = true;
+                richTextBox1.WordWrap = true;
+            }
+            else
+            {
+                AutoLineButton.Checked = false;
+                richTextBox1.WordWrap = false;
+            }
+        }
+        //=======================================================================
+
+        //=======================================================================
+        //帮助按钮
+        private void HelpButton_Click(object sender, EventArgs e)
+        {
+
+        }
+        //关于记事本按钮
+        private void 关于记事本ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            记事本.Form1 about = new 记事本.Form1();
+            about.ShowDialog();
+        }
+        //查看帮助按钮
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://go.microsoft.com/fwlink/?LinkId=834783");
+        }
+        //=======================================================================
+    }
+}
