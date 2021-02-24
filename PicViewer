@@ -1,0 +1,273 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace 图片查看器
+{
+    public partial class Form1 : Form
+    {
+        byte[] PictureBytes;
+        Bitmap BMPT;
+        string PicPath;
+        string APath;
+        string[] AllPath;
+        List<string> list = new List<string>();
+        int PicNum = 0;
+
+        bool isRotate = false;
+        bool IsFullScreen = false;
+
+        private string PicNumber;
+        private string PicNow;
+
+        public Form1()
+        {
+            InitializeComponent();
+            this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.LipMouse);
+        }
+        //上一个按钮
+        private void LateButton_Click(object sender, EventArgs e)
+        {
+            PicNum--;
+            if (PicNum < 0)
+            {
+                PicNum = list.Count-1;
+            }
+            pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
+            try
+            {
+                pictureBox1.Image = Image.FromFile(list[PicNum]);
+            }
+            catch
+            {
+
+            }
+            pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
+            string PicNow = "第" + (PicNum + 1) + "张";
+            
+            textBox2.Text = PicNow;
+        }
+        //下一个按钮
+        private void NextButton_Click(object sender, EventArgs e)
+        {
+            PicNum++;
+            if (PicNum == list.Count)
+            {
+                PicNum = 0;
+            }
+            pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
+            try
+            {
+                pictureBox1.Image = Image.FromFile(list[PicNum]);
+            }
+            catch
+            {
+
+            }
+            pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
+            string PicNow = "第" + (PicNum + 1) + "张";
+            
+            textBox2.Text = PicNow;
+        }
+        //图片显示窗口
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+        //打开图片按钮
+        private void OpenPic_Click(object sender, EventArgs e)
+        {
+            list.Clear();
+            OpenFileDialog OpenPic = new OpenFileDialog();
+            OpenPic.Title = "请选择要打开的文件";
+            OpenPic.InitialDirectory = @"C:\";
+            OpenPic.Filter = "所有图片(*.jpg*.jpeg*.bmp*.gif*.png)|*.jpg;*.jpeg;*.bmp;*.gif;*.png|JPG图片(*.jpg)|*.jpg;*.jpeg|位图(*bmp)|*.bmp|GIF文件(*.gif)|*.gif|PNG文件(*.png)|*.png";
+            OpenPic.ShowDialog();
+            PicPath = OpenPic.FileName;
+            if(PicPath == "")
+            {
+                return;
+            }
+            else
+            {
+                APath = Path.GetDirectoryName(PicPath);
+                AllPath = Directory.GetFiles(APath);
+                string BPath = PicPath;
+                for(int n = 0;n < AllPath.Length; n++)
+                {
+                    PicPath = Path.GetExtension(AllPath[n]);
+                    if(PicPath == ".jpg"|| PicPath == ".bmp" || PicPath == ".jpeg" || PicPath == ".gif" || PicPath == ".png" ||
+                        PicPath == ".JPG" || PicPath == ".BMP" || PicPath == ".JPEG" || PicPath == ".GIF" || PicPath == ".PNG" )
+                    {                     
+                        list.Add(AllPath[n]);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                PicNum = list.IndexOf(BPath);
+                pictureBox1.Image = Image.FromFile(BPath);
+                pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
+                PicNumber = "共" + list.Count + "张图片";
+                PicNow = "第" + (PicNum + 1) + "张";
+                textBox1.Text = PicNumber;
+                textBox2.Text = PicNow;
+            }
+        }
+        //逆时针旋转按钮
+        private void CounterClockwiseRotation_Click(object sender, EventArgs e)
+        {
+            pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
+
+            pictureBox1.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
+            pictureBox1.Refresh();
+            isRotate = true;
+        }
+        //顺时针旋转按钮
+        private void button1_Click(object sender, EventArgs e)
+        {
+            pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
+
+            pictureBox1.Image.RotateFlip(RotateFlipType.Rotate270FlipNone);
+            pictureBox1.Refresh();
+            isRotate = true;
+        }
+        //放缩按钮
+        private void FullScreenButton_Click(object sender, EventArgs e)
+        {
+            IsFullScreen = !IsFullScreen;  
+            if (IsFullScreen)
+            {
+                this.FormBorderStyle = FormBorderStyle.None;
+                this.WindowState = FormWindowState.Maximized;
+            }
+            else
+            {
+                this.WindowState = FormWindowState.Normal;
+                this.FormBorderStyle = FormBorderStyle.Sizable;
+            }
+        }
+        //放大按钮
+        private void EnlargeButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Image myImage = pictureBox1.Image;
+                Bitmap myBitmap = new Bitmap(myImage, myImage.Width * 2, myImage.Height * 2);
+                pictureBox1.Image = myBitmap;
+            }
+            catch
+            {
+
+            }
+        }
+        //缩小按钮
+        private void NarrowButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Image myImage = pictureBox1.Image;
+                Bitmap myBitmap = new Bitmap(myImage, myImage.Width / 2, myImage.Height / 2);
+                pictureBox1.Image = myBitmap;
+            }
+            catch
+            {
+
+            }
+        }
+        //删除按钮
+        private void DeleteButton_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("是否确定删除此文件？", "删除此文件？", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                string DeletePic = list[PicNum];
+                list.RemoveAt(PicNum - 1);
+                Image image = pictureBox1.Image;
+                pictureBox1.Image = null;
+                image.Dispose();
+                File.Delete(DeletePic);
+                if (PicNum == list.Count)
+                {
+                    PicNum = 0;
+                }
+                pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
+                try
+                {
+                    pictureBox1.Image = Image.FromFile(list[PicNum]);
+                }
+                catch
+                {
+
+                }               
+                pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
+                PicNumber = "共" + list.Count + "张图片";
+                PicNow = "第" + (PicNum + 1) + "张";
+                textBox1.Text = PicNumber;
+                textBox2.Text = PicNow;
+                MessageBox.Show("删除成功");
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+        //鼠标滚轮缩放
+        private void LipMouse(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (e.Delta > 0)
+            {
+                try
+                {
+                    Image myImage = pictureBox1.Image;
+                    Bitmap myBitmap = new Bitmap(myImage, myImage.Width * 2, myImage.Height * 2);
+                    pictureBox1.Image = myBitmap;
+                }
+                catch
+                {
+
+                }
+            }
+            else
+            {
+                try
+                {
+                    Image myImage = pictureBox1.Image;
+                    Bitmap myBitmap = new Bitmap(myImage, myImage.Width / 2, myImage.Height / 2);
+                    pictureBox1.Image = myBitmap;
+                }
+                catch
+                {
+
+                }
+            }
+        }
+        //全屏选项
+        private void FullScreenCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.WindowState = FormWindowState.Maximized;
+        }
+        //显示文本
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            textBox1.Text = PicNumber;
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
