@@ -192,7 +192,7 @@ namespace 图片查看器
             if (MessageBox.Show("是否确定删除此文件？", "删除此文件？", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 string DeletePic = list[PicNum];
-                list.RemoveAt(PicNum - 1);
+                list.RemoveAt(PicNum);
                 Image image = pictureBox1.Image;
                 pictureBox1.Image = null;
                 image.Dispose();
