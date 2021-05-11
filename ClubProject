@@ -1,0 +1,122 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviour
+{
+    public Rigidbody2D PlayerRB;
+    public LayerMask WallLayer;
+    public LayerMask DoorLayer;
+    [Header("环境检测")]
+    //
+    [Header("检测墙面")]
+    public bool LeftIsWall;
+    public bool RightIsWall;
+    public bool UpIsWall;
+    public bool DownIsWall;
+    [Header("检测大门")]
+    public bool LeftIsDoor;
+    public bool RightIsDoor;
+    public bool UpIsDoor;
+    public bool DownIsDoor;
+    [Header("钥匙数量")]
+    public int YellowKey = 0;
+    public int BlueKey = 0;
+    public int RedKey = 0;
+
+    RaycastHit2D LeftCheckObject;
+    RaycastHit2D RightCheckObject;
+    RaycastHit2D UpCheckObject;
+    RaycastHit2D DownCheckObject;
+    void Start()
+    {
+        
+    }
+
+    void Update()
+    {
+        Movement();
+        WallCheck();
+        DoorCheck();
+    }
+    //检测墙壁
+    void WallCheck()
+    {
+        Vector2 Position = transform.position;
+        RaycastHit2D LeftCheck = Raycast(Position, Vector2.left, 1.0f,WallLayer);
+        RaycastHit2D RightCheck = Raycast(Position, Vector2.right, 1.0f, WallLayer);
+        RaycastHit2D UpCheck = Raycast(Position, Vector2.up, 1.0f, WallLayer);
+        RaycastHit2D DownCheck = Raycast(Position, Vector2.down, 1.0f, WallLayer);
+        LeftIsWall = LeftCheck;
+        RightIsWall = RightCheck;
+        UpIsWall = UpCheck;
+        DownIsWall = DownCheck;
+    }
+    //门检测
+    void DoorCheck()
+    {
+        Vector2 Position = transform.position; 
+        RaycastHit2D LeftCheck = Raycast(Position, Vector2.left, 1.0f, DoorLayer);
+        RaycastHit2D RightCheck = Raycast(Position, Vector2.right, 1.0f, DoorLayer);
+        RaycastHit2D UpCheck = Raycast(Position, Vector2.up, 1.0f, DoorLayer);
+        RaycastHit2D DownCheck = Raycast(Position, Vector2.down, 1.0f, DoorLayer);
+
+    }
+    //玩家移动
+    public void Movement()
+    {
+        //向左
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            if (!LeftIsWall)
+            {
+                Vector2 CPosition = PlayerRB.transform.position;
+                CPosition.x -= 1.0f;
+                PlayerRB.transform.position = CPosition;
+            }
+        }
+        //向右
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            if (!RightIsWall)
+            {
+                Vector2 CPosition = PlayerRB.transform.position;
+                CPosition.x += 1.0f;
+                PlayerRB.transform.position = CPosition;
+            }          
+        }
+        //向上
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            if (!UpIsWall)
+            {
+                Vector2 CPosition = PlayerRB.transform.position;
+                CPosition.y += 1.0f;
+                PlayerRB.transform.position = CPosition;
+            }
+        }
+
+        //向下
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            if (!DownIsWall)
+            {
+                Vector2 CPosition = PlayerRB.transform.position;
+                CPosition.y -= 1.0f;
+                PlayerRB.transform.position = CPosition;
+            }          
+        }
+    }
+    //射线检测
+    RaycastHit2D Raycast(Vector2 Offset, Vector2 RayDirection, float Length, LayerMask Layer)
+    {
+        RaycastHit2D Hit = Physics2D.Raycast(Offset, RayDirection, Length, Layer);
+        Color RayColor = Hit ? Color.red : Color.green;
+        Debug.DrawRay(Offset, RayDirection * Length, RayColor);
+        return Hit;
+    }
+    /*RaycastHit2D ItemCheck(Vector2 Offset, Vector2 RayDirection, float Length, LayerMask Layer)
+    {
+        
+    }*/
+}
